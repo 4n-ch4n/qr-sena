@@ -23,6 +23,11 @@ import { PaginationDto } from '../common/dtos/pagination.dto';
 export class PetsController {
   constructor(private readonly petsService: PetsService) {}
 
+  @Get('pet-code/:code')
+  getCode(@Param('code', ParseUUIDPipe) petCode: string) {
+    return this.petsService.checkPetCode(petCode);
+  }
+
   @Post()
   @Auth(ValidRoles.user)
   create(@Body() createPetDto: CreatePetDto, @GetUser() user: User) {
@@ -40,8 +45,13 @@ export class PetsController {
     return this.petsService.findOne(term);
   }
 
+  @Get('code/:petCode')
+  findOneByPetCode(@Param('petCode', ParseUUIDPipe) petCode: string) {
+    return this.petsService.findOneByPetCode(petCode);
+  }
+
   @Patch(':id')
-  @Auth(ValidRoles.user, ValidRoles.admin)
+  @Auth(ValidRoles.user)
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePetDto: UpdatePetDto,

@@ -12,12 +12,14 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma.service';
 import { CreateUserDto, LoginUserDto } from './dto';
 import type { JwtPayload } from './interfaces';
+import { QrService } from 'src/qr/qr.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly qrService: QrService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -63,6 +65,38 @@ export class AuthService {
       ...user,
       token: this.getJwtToken({ id: user.id }),
     };
+  }
+
+  async generateQrCodes(numberCodes: number) {
+    const qrs: string[] = [];
+
+    for (let i = 0; i < numberCodes; i++) {
+      const element = await this.generateQrCode();
+      qrs.push(element);
+    }
+
+    return qrs;
+  }
+
+  async getGeneratedQrCodes(numberCodes: number) {
+    const petCodes = await this.prisma.petCode.findMany({
+      take: numberCodes,
+      where: { claimed: false },
+    });
+
+    const qrs = petCodes.map((petCode) =>
+      this.qrService.generateQrCode(petCode.id),
+    );
+
+    return Promise.all(qrs);
+  }
+
+  private async generateQrCode() {
+    const petCode = await this.prisma.petCode.create({ data: {} });
+
+    const qr = this.qrService.generateQrCode(petCode.id);
+
+    return qr;
   }
 
   private getJwtToken(payload: JwtPayload) {

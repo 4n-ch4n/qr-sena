@@ -2,7 +2,7 @@ import {
   IsNumber,
   IsPositive,
   IsString,
-  // IsUUID,
+  IsUUID,
   MinLength,
 } from 'class-validator';
 
@@ -31,7 +31,7 @@ export class CreatePetDto {
   @MinLength(1)
   size: string;
 
-  // @IsString()
-  // @IsUUID()
-  // ownerId: string;
+  @IsString()
+  @IsUUID()
+  petCode: string;
 }

@@ -26,6 +26,13 @@ model User {
   pets Pet[]
 }
 
+model PetCode {
+  id String @id @default(uuid())
+  claimed Boolean @default(false)
+  claimed_at DateTime?
+  pet Pet?
+}
+
 model Pet {
   id String @id @default(uuid()) 
   name String @db.VarChar(100)
@@ -34,8 +41,10 @@ model Pet {
   breed String @db.VarChar(100)
   gender String @db.VarChar(10)
   size String @db.VarChar(10)
+  last_location String? @db.VarChar(256)
   created_at DateTime @default(now())
-  qrCode String? @db.Text
+  petCode PetCode @relation(fields: [petCode_id], references: [id])
+  petCode_id String @unique
   owner User @relation(fields: [owner_id], references: [id])
   owner_id String
 }
