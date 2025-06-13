@@ -6,6 +6,8 @@
 postgres/
 .env
 
+yarn.log
+
 # Logs
 logs
 *.log
