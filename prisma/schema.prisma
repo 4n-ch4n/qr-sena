@@ -18,6 +18,7 @@ model User {
   id String @id @default(uuid())
   name String @db.VarChar(100)
   last_name String @db.VarChar(100)
+  phone String @db.VarChar(20)
   email String @unique @db.VarChar(256)
   password String @db.VarChar(256)
   is_active Boolean @default(true)

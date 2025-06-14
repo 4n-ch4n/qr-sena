@@ -11,8 +11,8 @@ import * as bcrypt from 'bcrypt';
 
 import { PrismaService } from '../prisma.service';
 import { CreateUserDto, LoginUserDto } from './dto';
-import type { JwtPayload } from './interfaces';
 import { QrService } from 'src/qr/qr.service';
+import type { JwtPayload } from './interfaces';
 
 @Injectable()
 export class AuthService {
@@ -33,8 +33,11 @@ export class AuthService {
         },
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password: userPassword, ...restUser } = user;
+
       return {
-        ...user,
+        user: { ...restUser },
         token: this.getJwtToken({ id: user.id }),
       };
     } catch (error) {
@@ -54,8 +57,11 @@ export class AuthService {
     if (!bcrypt.compareSync(password, user.password))
       throw new UnauthorizedException('Credenciales incorrectas');
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: userPassword, ...restUser } = user;
+
     return {
-      ...user,
+      user: { ...restUser },
       token: this.getJwtToken({ id: user.id }),
     };
   }
@@ -107,6 +113,10 @@ export class AuthService {
   private handleDBErrors(error: any) {
     /* eslint-disable @typescript-eslint/no-unsafe-member-access */
     if (error.code === '23505') throw new BadRequestException(error.detail);
+
+    if (error.code === 'P2002')
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      throw new BadRequestException('Email ya existe', error.details);
 
     console.log(error);
 

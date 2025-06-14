@@ -1,6 +1,7 @@
 import {
   IsEmail,
   IsString,
+  IsStrongPassword,
   Matches,
   MaxLength,
   MinLength,
@@ -12,11 +13,15 @@ export class LoginUserDto {
   email: string;
 
   @IsString()
-  @MinLength(6)
+  @MinLength(8)
   @MaxLength(256)
-  @Matches(/(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message:
-      'La contraseña debe tener al menos una letra mayúscula, una letra minúscula y un número.',
-  })
+  @IsStrongPassword()
+  @Matches(
+    /(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z])(?!.*[\sñÑáéíóúÁÉÍÓÚ]).*$/,
+    {
+      message:
+        'La contraseña debe tener al menos una letra mayúscula, una letra minúscula, un caracter especial y un número ademas no puede tener espacios ni letra "ñ.',
+    },
+  )
   password: string;
 }
