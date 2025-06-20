@@ -1,8 +1,8 @@
 import {
   IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
-  IsUUID,
   MinLength,
 } from 'class-validator';
 
@@ -32,6 +32,9 @@ export class CreatePetDto {
   size: string;
 
   @IsString()
-  @IsUUID()
+  @IsOptional()
+  image: string;
+
+  @IsString()
   petCode: string;
 }

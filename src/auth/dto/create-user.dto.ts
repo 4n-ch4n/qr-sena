@@ -23,6 +23,7 @@ export class CreateUserDto {
 
   @IsString()
   @IsMobilePhone()
+  @MaxLength(10)
   phone: string;
 
   @IsString()
@@ -30,7 +31,7 @@ export class CreateUserDto {
   @MaxLength(256)
   @IsStrongPassword()
   @Matches(
-    /(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z])(?!.*[\sñÑáéíóúÁÉÍÓÚ]).*$/,
+    /(?=.*[A-Z])(?=.*[a-z])(?:(?=.*\d)|(?=.*\W))^[^ñÑáéíóúÁÉÍÓÚ<>&"'/\s]*$/,
     {
       message:
         'La contraseña debe tener al menos una letra mayúscula, una letra minúscula, un caracter especial y un número ademas no puede tener espacios ni letra "ñ.',

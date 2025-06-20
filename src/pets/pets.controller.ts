@@ -24,7 +24,7 @@ export class PetsController {
   constructor(private readonly petsService: PetsService) {}
 
   @Get('pet-code/:code')
-  getCode(@Param('code', ParseUUIDPipe) petCode: string) {
+  getCode(@Param('code') petCode: string) {
     return this.petsService.checkPetCode(petCode);
   }
 
@@ -46,7 +46,7 @@ export class PetsController {
   }
 
   @Get('code/:petCode')
-  findOneByPetCode(@Param('petCode', ParseUUIDPipe) petCode: string) {
+  findOneByPetCode(@Param('petCode') petCode: string) {
     return this.petsService.findOneByPetCode(petCode);
   }
 

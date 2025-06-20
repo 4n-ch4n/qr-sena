@@ -17,10 +17,10 @@ export class LoginUserDto {
   @MaxLength(256)
   @IsStrongPassword()
   @Matches(
-    /(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z])(?!.*[\sñÑáéíóúÁÉÍÓÚ]).*$/,
+    /(?=.*[A-Z])(?=.*[a-z])(?:(?=.*\d)|(?=.*\W))^[^ñÑáéíóúÁÉÍÓÚ<>&"'/\s]*$/,
     {
       message:
-        'La contraseña debe tener al menos una letra mayúscula, una letra minúscula, un caracter especial y un número ademas no puede tener espacios ni letra "ñ.',
+        'La contraseña debe tener al menos una letra mayúscula, una letra minúscula, un caracter especial y un número ademas no puede tener espacios, tildes ni letra "ñ".',
     },
   )
   password: string;

@@ -74,7 +74,10 @@ export class AuthService {
   }
 
   async generateQrCodes(numberCodes: number) {
-    const qrs: string[] = [];
+    const qrs: {
+      qr: string;
+      code: string;
+    }[] = [];
 
     for (let i = 0; i < numberCodes; i++) {
       const element = await this.generateQrCode();
@@ -90,19 +93,25 @@ export class AuthService {
       where: { claimed: false },
     });
 
-    const qrs = petCodes.map((petCode) =>
-      this.qrService.generateQrCode(petCode.id),
-    );
+    const qrs = petCodes.map(async (petCode) => ({
+      qr: await this.qrService.generateQrCode(petCode.id),
+      code: petCode.code,
+    }));
 
     return Promise.all(qrs);
   }
 
   private async generateQrCode() {
-    const petCode = await this.prisma.petCode.create({ data: {} });
+    const code = Math.random().toString(36).substring(2, 8);
 
-    const qr = this.qrService.generateQrCode(petCode.id);
+    const petCode = await this.prisma.petCode.create({ data: { code } });
 
-    return qr;
+    const qr = await this.qrService.generateQrCode(petCode.id);
+
+    return {
+      qr,
+      code: petCode.code,
+    };
   }
 
   private getJwtToken(payload: JwtPayload) {

@@ -11,20 +11,25 @@ import { PrismaService } from 'src/prisma.service';
 import { Pet, User } from '@prisma/client';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { isUUID } from 'class-validator';
-import { QrService } from 'src/qr/qr.service';
 
 @Injectable()
 export class PetsService {
   private readonly logger = new Logger('PetsService');
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly qrService: QrService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async checkPetCode(petCode: string) {
-    const petCodeEntity = await this.prisma.petCode.findUnique({
-      where: { id: petCode },
+    const petCodeEntity = await this.prisma.petCode.findFirst({
+      where: {
+        OR: [
+          {
+            id: petCode,
+          },
+          {
+            code: petCode,
+          },
+        ],
+      },
     });
 
     if (!petCodeEntity)
@@ -34,26 +39,36 @@ export class PetsService {
   }
 
   async create(createPetDto: CreatePetDto, user: User) {
-    const petCode = await this.prisma.petCode.findUnique({
-      where: { id: createPetDto.petCode },
+    const { petCode: petCodeDto, ...petData } = createPetDto;
+
+    const petCode = await this.prisma.petCode.findFirst({
+      where: {
+        OR: [
+          {
+            id: petCodeDto,
+          },
+          {
+            code: petCodeDto,
+          },
+        ],
+      },
     });
 
     if (!petCode || petCode.claimed)
       throw new BadRequestException('Code is invalid or already claimed');
 
     try {
-      const { petCode, ...petData } = createPetDto;
       const pet = await this.prisma.pet.create({
         data: {
           ...petData,
-          petCode_id: petCode,
+          petCode_id: petCode.id,
           owner_id: user.id,
         },
       });
 
       await this.prisma.petCode.update({
         data: { claimed: true, claimed_at: new Date() },
-        where: { id: petCode },
+        where: { id: petCode.id },
       });
 
       return pet;
@@ -107,9 +122,19 @@ export class PetsService {
   }
 
   async findOneByPetCode(petCode: string) {
-    const pet = await this.prisma.pet.findFirst({
+    const pet = await this.prisma.petCode.findFirst({
       where: {
-        petCode_id: petCode,
+        OR: [
+          {
+            id: petCode,
+          },
+          {
+            code: petCode,
+          },
+        ],
+      },
+      include: {
+        pet: true,
       },
     });
 
