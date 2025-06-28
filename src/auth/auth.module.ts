@@ -7,11 +7,10 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { PrismaService } from 'src/prisma.service';
-import { QrService } from 'src/qr/qr.service';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, PrismaService, QrService],
+  providers: [AuthService, JwtStrategy, PrismaService],
   imports: [
     ConfigModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
