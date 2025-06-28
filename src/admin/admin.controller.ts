@@ -18,4 +18,10 @@ export class AdminController {
   getGeneratedQrCodes(@Param('numberCodes', ParseIntPipe) numberCodes: number) {
     return this.adminService.getGeneratedQrCodes(numberCodes);
   }
+
+  @Get('dashboard')
+  @Auth(ValidRoles.admin)
+  getDashboardStats() {
+    return this.adminService.getDashboardStats();
+  }
 }

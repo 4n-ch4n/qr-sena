@@ -37,6 +37,35 @@ export class AdminService {
     return Promise.all(qrs);
   }
 
+  async getDashboardStats() {
+    const totalPets = await this.prisma.pet.count();
+    const petsByType = await this.prisma.pet.groupBy({
+      by: 'species',
+      _count: true,
+    });
+
+    const qrGenerated = await this.prisma.petCode.count();
+    const qrClaimed = await this.prisma.petCode.count({
+      where: {
+        claimed: true,
+      },
+    });
+
+    const totalActiveUsers = await this.prisma.user.count({
+      where: {
+        is_active: true,
+      },
+    });
+
+    return {
+      totalPets,
+      qrGenerated,
+      qrClaimed,
+      petsByType,
+      totalActiveUsers,
+    };
+  }
+
   private async generateQrCode() {
     const code = Math.random().toString(36).substring(2, 8);
 
