@@ -50,7 +50,6 @@ export class AuthService {
 
     const user = await this.prisma.user.findUnique({
       where: { email },
-      select: { email: true, password: true, id: true },
     });
 
     if (!user) throw new UnauthorizedException('Credenciales incorrectas');
