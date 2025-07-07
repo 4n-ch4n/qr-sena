@@ -43,11 +43,21 @@ model Pet {
   breed String @db.VarChar(100)
   gender String @db.VarChar(10)
   size String @db.VarChar(10)
-  last_location String? @db.VarChar(256)
   image String? @db.Text
   created_at DateTime @default(now())
   petCode PetCode @relation(fields: [petCode_id], references: [id])
   petCode_id String @unique
   owner User @relation(fields: [owner_id], references: [id])
   owner_id String
+  lost_reports LostPetReport[]
+}
+
+model LostPetReport {
+  id String @id @default(uuid())
+  pet Pet @relation(fields: [pet_id], references: [id])
+  pet_id String
+  message String?
+  location String?
+  is_active Boolean @default(true)
+  created_at DateTime @default(now())
 }

@@ -57,12 +57,27 @@ export class AdminService {
       },
     });
 
+    const reportsByMonth = await this.prisma.$queryRaw`
+      SELECT DATE_TRUNC('month', created_at) AS month, COUNT(*)::int AS count FROM "LostPetReport"
+      GROUP BY month
+      ORDER BY month;
+    `;
+
+    const activeResolveReports = await this.prisma.lostPetReport.groupBy({
+      by: 'is_active',
+      _count: {
+        is_active: true,
+      },
+    });
+
     return {
       totalPets,
       qrGenerated,
       qrClaimed,
       petsByType,
       totalActiveUsers,
+      reportsByMonth,
+      activeResolveReports,
     };
   }
 

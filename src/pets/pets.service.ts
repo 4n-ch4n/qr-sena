@@ -73,7 +73,7 @@ export class PetsService {
 
       return pet;
     } catch (error) {
-      this.handldeDbErrors(error);
+      this.handleDbErrors(error);
     }
   }
 
@@ -93,9 +93,17 @@ export class PetsService {
         },
         petCode: {
           select: {
+            id: true,
+            code: true,
             claimed: true,
             claimed_at: true,
           },
+        },
+        lost_reports: {
+          orderBy: {
+            created_at: 'desc',
+          },
+          take: 1,
         },
       },
     });
@@ -165,7 +173,7 @@ export class PetsService {
 
       return updatedPet;
     } catch (error) {
-      this.handldeDbErrors(error);
+      this.handleDbErrors(error);
     }
   }
 
@@ -177,11 +185,11 @@ export class PetsService {
         where: { id: pet.id },
       });
     } catch (error) {
-      this.handldeDbErrors(error);
+      this.handleDbErrors(error);
     }
   }
 
-  private handldeDbErrors(error: any) {
+  private handleDbErrors(error: any) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (error.code === '23505') throw new BadRequestException(error.detail);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

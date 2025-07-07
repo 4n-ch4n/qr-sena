@@ -81,7 +81,7 @@ export class AuthService {
 
     if (error.code === 'P2002')
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      throw new BadRequestException('Email ya existe', error.details);
+      throw new BadRequestException('Email already exists', error.details);
 
     console.log(error);
 

@@ -5,6 +5,7 @@ import { PetsModule } from './pets/pets.module';
 import { QrService } from './qr/qr.service';
 import { FilesModule } from './files/files.module';
 import { AdminModule } from './admin/admin.module';
+import { LostPetReportModule } from './lost-pet-report/lost-pet-report.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AdminModule } from './admin/admin.module';
     PetsModule,
     FilesModule,
     AdminModule,
+    LostPetReportModule,
   ],
   providers: [QrService],
 })
