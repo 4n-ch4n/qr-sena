@@ -25,6 +25,7 @@ model User {
   roles String[] @default(["user"])
   created_at DateTime @default(now())
   pets Pet[]
+  purchases Purchase[]
 }
 
 model PetCode {
@@ -60,4 +61,60 @@ model LostPetReport {
   location String?
   is_active Boolean @default(true)
   created_at DateTime @default(now())
+}
+
+model Purchase {
+  id String @id @default(uuid())
+  user_id String
+  total_price Decimal @db.Decimal(10, 2)
+  status OrderStatus @default(PENDING)
+  payment_id BigInt?
+  created_at DateTime @default(now())
+  user User @relation(fields: [user_id], references: [id])
+  items PurchaseItem[]
+  shippingInfo ShippingInfo?
+}
+
+model PurchaseItem {
+  id String @id @default(uuid())
+  purchase_id String
+  purchase Purchase @relation(fields: [purchase_id], references: [id])
+  type PlateType
+  unit_price Decimal @db.Decimal(10, 2)
+  name_to_engrave String? @db.VarChar(100)
+}
+
+model ShippingInfo {
+  id String @id @default(uuid())
+  full_name String @db.VarChar(100)
+  phone String @db.VarChar(10)
+  address String @db.VarChar(256)
+  city String @db.VarChar(100)
+  state String @db.VarChar(100)
+  postal_code String @db.VarChar(20)
+  carrier String? @db.VarChar(100)
+  tracking_code String?
+  status ShippingStatus @default(PENDING)
+  purchase_id String @unique
+  purchase Purchase @relation(fields: [purchase_id], references: [id])
+}
+
+enum PlateType {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  COMPLETED
+  CANCELLED
+  FAILED
+}
+
+enum ShippingStatus {
+  PENDING
+  SHIPPED
+  DELIVERED
 }

@@ -6,6 +6,9 @@ import { QrService } from './qr/qr.service';
 import { FilesModule } from './files/files.module';
 import { AdminModule } from './admin/admin.module';
 import { LostPetReportModule } from './lost-pet-report/lost-pet-report.module';
+import { PurchaseModule } from './purchase/purchase.module';
+import { WebhooksModule } from './webhooks/webhooks.module';
+import { PrinterModule } from './printer/printer.module';
 
 @Module({
   imports: [
@@ -17,6 +20,9 @@ import { LostPetReportModule } from './lost-pet-report/lost-pet-report.module';
     FilesModule,
     AdminModule,
     LostPetReportModule,
+    PurchaseModule,
+    WebhooksModule,
+    PrinterModule,
   ],
   providers: [QrService],
 })
