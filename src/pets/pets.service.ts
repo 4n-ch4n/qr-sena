@@ -8,15 +8,19 @@ import {
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdatePetDto } from './dto/update-pet.dto';
 import { PrismaService } from 'src/prisma.service';
-import { Pet, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { isUUID } from 'class-validator';
+import { QrService } from 'src/qr/qr.service';
 
 @Injectable()
 export class PetsService {
   private readonly logger = new Logger('PetsService');
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly qrService: QrService,
+  ) {}
 
   async checkPetCode(petCode: string) {
     const petCodeEntity = await this.prisma.petCode.findFirst({
@@ -108,25 +112,77 @@ export class PetsService {
       },
     });
 
-    return pets;
+    return Promise.all(
+      pets.map(async (pet) => ({
+        ...pet,
+        qr: await this.qrService.generateQrCode(pet.petCode.id),
+      })),
+    );
   }
 
   async findOne(term: string) {
-    let pet: Pet | null;
+    let pet: any;
 
     if (isUUID(term)) {
-      pet = await this.prisma.pet.findUnique({ where: { id: term } });
+      pet = await this.prisma.pet.findUnique({
+        where: { id: term },
+        include: {
+          owner: {
+            select: {
+              name: true,
+              last_name: true,
+            },
+          },
+          petCode: {
+            select: {
+              id: true,
+              code: true,
+              claimed: true,
+              claimed_at: true,
+            },
+          },
+          lost_reports: {
+            orderBy: {
+              created_at: 'desc',
+            },
+            take: 1,
+          },
+        },
+      });
     } else {
       pet = await this.prisma.pet.findFirst({
         where: {
           name: term,
+        },
+        include: {
+          owner: {
+            select: {
+              name: true,
+              last_name: true,
+            },
+          },
+          petCode: {
+            select: {
+              id: true,
+              code: true,
+              claimed: true,
+              claimed_at: true,
+            },
+          },
+          lost_reports: {
+            orderBy: {
+              created_at: 'desc',
+            },
+            take: 1,
+          },
         },
       });
     }
 
     if (!pet) throw new NotFoundException(`Pet with ${term} not found`);
 
-    return pet;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+    return { pet, qr: await this.qrService.generateQrCode(pet.petCode.id) };
   }
 
   async findOneByPetCode(petCode: string) {
@@ -182,7 +238,8 @@ export class PetsService {
 
     try {
       await this.prisma.pet.delete({
-        where: { id: pet.id },
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        where: { id: pet.pet.id },
       });
     } catch (error) {
       this.handleDbErrors(error);
