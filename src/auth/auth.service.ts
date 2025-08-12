@@ -5,17 +5,26 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { User } from '@prisma/client';
 
 import * as bcrypt from 'bcrypt';
 
 import { PrismaService } from '../prisma.service';
-import { CreateUserDto, LoginUserDto, UpdateProfileDTO } from './dto';
+import {
+  CreateUserDto,
+  LoginUserDto,
+  UpdateProfileDTO,
+  ResetPasswordDTO,
+} from './dto';
+import { MailerService } from 'src/mailer/mailer.service';
 import type { JwtPayload } from './interfaces';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly configService: ConfigService,
+    private readonly mailerService: MailerService,
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
   ) {}
@@ -95,6 +104,47 @@ export class AuthService {
       return restUser;
     } catch (error) {
       this.handleDBErrors(error);
+    }
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) throw new BadRequestException('User not found');
+
+    const token = this.jwtService.sign({ id: user.id }, { expiresIn: '15m' });
+
+    const resetLink = `${this.configService.get<string>('FRONT_URL')}/restablecer-contrasena?token=${token}`;
+
+    await this.mailerService.sendResetPasswordEmail(
+      { to: user.email, subject: 'Restablecer contraseña' },
+      resetLink,
+    );
+
+    return { message: 'Password reset link sent to your email' };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDTO) {
+    const { token, password } = resetPasswordDto;
+
+    try {
+      const payload: JwtPayload = this.jwtService.verify(token);
+      const { id } = payload;
+
+      if (!id) throw new UnauthorizedException('Invalid token');
+
+      const hashedPassword = bcrypt.hashSync(password, 10);
+
+      await this.prisma.user.update({
+        where: { id },
+        data: { password: hashedPassword },
+      });
+
+      return { message: 'Password has been reset successfully.' };
+    } catch {
+      throw new UnauthorizedException('Invalid or expired token.');
     }
   }
 

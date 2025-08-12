@@ -8,13 +8,16 @@ import {
 import { CreateLostPetReportDto } from './dto/create-lost-pet-report.dto';
 import { PrismaService } from 'src/prisma.service';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
-import { User } from '@prisma/client';
+import { MailerService } from 'src/mailer/mailer.service';
 
 @Injectable()
 export class LostPetReportService {
   private readonly logger = new Logger('PetsService');
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly mailerService: MailerService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   async reportLost(createLostPetReportDto: CreateLostPetReportDto) {
     const { petId, message, location } = createLostPetReportDto;
@@ -65,7 +68,27 @@ export class LostPetReportService {
         created_at: 'desc',
       },
       include: {
-        pet: true,
+        pet: {
+          select: {
+            id: true,
+            name: true,
+            age: true,
+            species: true,
+            breed: true,
+            gender: true,
+            size: true,
+            image: true,
+            owner: {
+              select: {
+                id: true,
+                name: true,
+                last_name: true,
+                phone: true,
+                email: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -84,25 +107,36 @@ export class LostPetReportService {
     return report;
   }
 
-  async foundPet(petId: string, user: User) {
+  async foundPet(petId: string) {
     const report = await this.reportByPetId(petId);
     if (!report.is_active)
       throw new BadRequestException('Pet not reported as lost');
 
     if (!report) throw new NotFoundException('Report not found');
 
-    if (user.id !== report.pet?.owner_id)
-      throw new BadRequestException('You can only mark your own pet as found');
+    if (!report.pet?.owner.email) throw new BadRequestException();
 
     try {
       const updatedReport = await this.prisma.lostPetReport.update({
         where: {
-          id: report.id!,
+          id: report.id,
         },
         data: {
           is_active: false,
         },
       });
+
+      await this.mailerService.sendFoundPetNotification(
+        {
+          to: report.pet?.owner.email,
+          subject: 'Tu mascota ha sido encontrada',
+        },
+        {
+          petName: report.pet?.name,
+          ownerName: report.pet?.owner.name,
+          ownerPhone: report.pet?.owner.phone,
+        },
+      );
 
       return updatedReport;
     } catch (error) {

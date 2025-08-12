@@ -2,7 +2,12 @@ import { Controller, Get, Post, Body, Patch } from '@nestjs/common';
 import { User } from '@prisma/client';
 
 import { AuthService } from './auth.service';
-import { CreateUserDto, LoginUserDto, UpdateProfileDTO } from './dto';
+import {
+  CreateUserDto,
+  LoginUserDto,
+  UpdateProfileDTO,
+  ResetPasswordDTO,
+} from './dto';
 import { Auth, GetUser } from './decorators';
 
 @Controller('auth')
@@ -32,5 +37,15 @@ export class AuthController {
     @Body() updateProfileDto: UpdateProfileDTO,
   ) {
     return this.authService.updateProfile(user.id, updateProfileDto);
+  }
+
+  @Post('forgot-password')
+  forgotPassword(@Body('email') email: string) {
+    return this.authService.forgotPassword(email);
+  }
+
+  @Patch('reset-password')
+  resetPassword(@Body() resetPasswordDto: ResetPasswordDTO) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 }

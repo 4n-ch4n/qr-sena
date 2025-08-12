@@ -7,11 +7,13 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { PrismaService } from 'src/prisma.service';
+import { MailerModule } from 'src/mailer/mailer.module';
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, PrismaService],
   imports: [
+    MailerModule,
     ConfigModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({

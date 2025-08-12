@@ -1,4 +1,10 @@
-import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsMobilePhone,
+  IsNotEmpty,
+  IsString,
+  Length,
+} from 'class-validator';
 import { PlateDTO } from './plate.dto';
 
 export class CreatePurchaseDTO {
@@ -12,6 +18,8 @@ export class CreatePurchaseDTO {
 
   @IsString()
   @IsNotEmpty()
+  @IsMobilePhone()
+  @Length(10, 10)
   phone: string;
 
   @IsString()

@@ -40,6 +40,12 @@ export class PetsController {
     return this.petsService.findAll(paginationDto, user);
   }
 
+  @Get('admin')
+  @Auth(ValidRoles.admin)
+  findAllAdmin(@Query() paginationDto: PaginationDto) {
+    return this.petsService.findAllAdmin(paginationDto);
+  }
+
   @Get(':term')
   findOne(@Param('term') term: string) {
     return this.petsService.findOne(term);

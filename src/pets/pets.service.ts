@@ -120,6 +120,42 @@ export class PetsService {
     );
   }
 
+  async findAllAdmin(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    const pets = await this.prisma.pet.findMany({
+      take: limit,
+      skip: offset,
+      include: {
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            last_name: true,
+            phone: true,
+            email: true,
+          },
+        },
+        petCode: {
+          select: {
+            id: true,
+            code: true,
+            claimed: true,
+            claimed_at: true,
+          },
+        },
+        lost_reports: {
+          orderBy: {
+            created_at: 'desc',
+          },
+          take: 1,
+        },
+      },
+    });
+
+    return pets;
+  }
+
   async findOne(term: string) {
     let pet: any;
 
@@ -198,7 +234,26 @@ export class PetsService {
         ],
       },
       include: {
-        pet: true,
+        pet: {
+          select: {
+            id: true,
+            name: true,
+            age: true,
+            species: true,
+            breed: true,
+            gender: true,
+            size: true,
+            image: true,
+            owner: {
+              select: {
+                id: true,
+                name: true,
+                last_name: true,
+                phone: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -237,9 +292,21 @@ export class PetsService {
     const pet = await this.findOne(id);
 
     try {
-      await this.prisma.pet.delete({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-        where: { id: pet.pet.id },
+      return this.prisma.$transaction(async (tx) => {
+        await tx.pet.delete({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+          where: { id: pet.pet.id },
+        });
+
+        await tx.lostPetReport.deleteMany({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+          where: { pet_id: pet.pet.id },
+        });
+
+        await tx.petCode.delete({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+          where: { id: pet.pet.petCode_id },
+        });
       });
     } catch (error) {
       this.handleDbErrors(error);
