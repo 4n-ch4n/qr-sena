@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   BadRequestException,
   Injectable,
@@ -9,6 +11,7 @@ import { CreateLostPetReportDto } from './dto/create-lost-pet-report.dto';
 import { PrismaService } from 'src/prisma.service';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { MailerService } from 'src/mailer/mailer.service';
+import { PetsService } from 'src/pets/pets.service';
 
 @Injectable()
 export class LostPetReportService {
@@ -16,6 +19,7 @@ export class LostPetReportService {
 
   constructor(
     private readonly mailerService: MailerService,
+    private readonly petsService: PetsService,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -27,6 +31,10 @@ export class LostPetReportService {
     if (latestReport.is_active)
       throw new BadRequestException('Pet already reported as lost');
 
+    const petInfo = await this.petsService.findOne(petId);
+
+    if (!petInfo.pet?.owner.email) throw new BadRequestException();
+
     try {
       const report = await this.prisma.lostPetReport.create({
         data: {
@@ -35,6 +43,19 @@ export class LostPetReportService {
           location,
         },
       });
+
+      await this.mailerService.sendLostPetNotification(
+        {
+          to: petInfo.pet?.owner.email,
+          subject: 'Tu mascota ha sido reportada como perdida',
+        },
+        {
+          ownerName: petInfo.pet?.owner.name,
+          petName: petInfo.pet?.name,
+          location,
+          message,
+        },
+      );
 
       return report;
     } catch (error) {
@@ -132,9 +153,9 @@ export class LostPetReportService {
           subject: 'Tu mascota ha sido encontrada',
         },
         {
-          petName: report.pet?.name,
-          ownerName: report.pet?.owner.name,
-          ownerPhone: report.pet?.owner.phone,
+          petName: report.pet.name,
+          ownerName: report.pet.owner.name,
+          ownerPhone: report.pet.owner.phone,
         },
       );
 
@@ -145,9 +166,7 @@ export class LostPetReportService {
   }
 
   private handleDbErrors(error: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (error.code === '23505') throw new BadRequestException(error.detail);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (error.code === '22P02') throw new NotFoundException(error.detail);
 
     this.logger.error(error);

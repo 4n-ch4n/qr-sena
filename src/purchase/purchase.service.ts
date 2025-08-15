@@ -155,6 +155,14 @@ export class PurchaseService {
             tracking_code: true,
           },
         },
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            last_name: true,
+          },
+        },
       },
     });
 
@@ -194,6 +202,14 @@ export class PurchaseService {
             status: true,
             carrier: true,
             tracking_code: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            last_name: true,
           },
         },
       },

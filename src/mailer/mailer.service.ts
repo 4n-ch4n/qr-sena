@@ -2,7 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import nodemailer, { Transporter } from 'nodemailer';
 import {
+  htmlLostPetReportConfirmation,
   htmlPetFoundNotification,
+  htmlPurchaseConfirmation,
   htmlSendResetPasswordUrl,
 } from './utils/emailTemplates';
 
@@ -15,6 +17,13 @@ export interface FoundPetInfo {
   petName: string;
   ownerName: string;
   ownerPhone: string;
+}
+
+export interface LostPetInfo {
+  ownerName: string;
+  petName: string;
+  location: string;
+  message: string;
 }
 
 @Injectable()
@@ -51,6 +60,35 @@ export class MailerService {
     }
   }
 
+  async sendLostPetNotification(
+    options: SendMailOptions,
+    lostPetInfo: LostPetInfo,
+  ) {
+    const { to, subject } = options;
+    const { ownerName, petName, location, message } = lostPetInfo;
+
+    const htmlBody = htmlLostPetReportConfirmation(
+      ownerName,
+      petName,
+      location,
+      message,
+    );
+
+    try {
+      await this.transporter.sendMail({
+        to,
+        subject,
+        html: htmlBody,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Error sending found notification email to ${to}:`,
+        error,
+      );
+      throw new Error('Failed to send lost notification email');
+    }
+  }
+
   async sendFoundPetNotification(
     options: SendMailOptions,
     foundPetInfo: FoundPetInfo,
@@ -72,6 +110,26 @@ export class MailerService {
         error,
       );
       throw new Error('Failed to send found notification email');
+    }
+  }
+
+  async sendPurchaseConfirmation(options: SendMailOptions, purchaseId: string) {
+    const { to, subject } = options;
+
+    const htmlBody = htmlPurchaseConfirmation(purchaseId);
+
+    try {
+      await this.transporter.sendMail({
+        to,
+        subject,
+        html: htmlBody,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Error sending found notification email to ${to}:`,
+        error,
+      );
+      throw new Error('Failed to send purchase notification email');
     }
   }
 }

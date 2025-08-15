@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Query } from '@nestjs/common';
 import { User } from '@prisma/client';
 
 import { AuthService } from './auth.service';
@@ -9,6 +9,8 @@ import {
   ResetPasswordDTO,
 } from './dto';
 import { Auth, GetUser } from './decorators';
+import { ValidRoles } from './interfaces';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -47,5 +49,11 @@ export class AuthController {
   @Patch('reset-password')
   resetPassword(@Body() resetPasswordDto: ResetPasswordDTO) {
     return this.authService.resetPassword(resetPasswordDto);
+  }
+
+  @Get('users')
+  @Auth(ValidRoles.admin)
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.authService.findAll(paginationDto);
   }
 }

@@ -4,10 +4,11 @@ import { LostPetReportController } from './lost-pet-report.controller';
 import { PrismaService } from 'src/prisma.service';
 import { AuthModule } from 'src/auth/auth.module';
 import { MailerModule } from 'src/mailer/mailer.module';
+import { PetsModule } from 'src/pets/pets.module';
 
 @Module({
   controllers: [LostPetReportController],
   providers: [LostPetReportService, PrismaService],
-  imports: [AuthModule, MailerModule],
+  imports: [AuthModule, MailerModule, PetsModule],
 })
 export class LostPetReportModule {}

@@ -167,6 +167,7 @@ export class PetsService {
             select: {
               name: true,
               last_name: true,
+              email: true,
             },
           },
           petCode: {

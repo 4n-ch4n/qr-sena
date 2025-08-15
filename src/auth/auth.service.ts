@@ -19,6 +19,7 @@ import {
 } from './dto';
 import { MailerService } from 'src/mailer/mailer.service';
 import type { JwtPayload } from './interfaces';
+import { PaginationDto } from 'src/common/dtos/pagination.dto';
 
 @Injectable()
 export class AuthService {
@@ -146,6 +147,25 @@ export class AuthService {
     } catch {
       throw new UnauthorizedException('Invalid or expired token.');
     }
+  }
+
+  async findAll(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
+    const users = await this.prisma.user.findMany({
+      take: limit,
+      skip: offset,
+      select: {
+        id: true,
+        name: true,
+        last_name: true,
+        email: true,
+        phone: true,
+        created_at: true,
+      },
+    });
+
+    return users;
   }
 
   private getJwtToken(payload: JwtPayload) {

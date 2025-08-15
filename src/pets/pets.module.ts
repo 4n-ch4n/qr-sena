@@ -9,5 +9,6 @@ import { QrService } from 'src/qr/qr.service';
   controllers: [PetsController],
   providers: [PetsService, PrismaService, QrService],
   imports: [AuthModule],
+  exports: [PetsService],
 })
 export class PetsModule {}

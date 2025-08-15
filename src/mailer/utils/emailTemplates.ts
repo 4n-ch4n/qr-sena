@@ -78,3 +78,82 @@ export const htmlPetFoundNotification = (
 </body>
 </html>
 `;
+
+export const htmlLostPetReportConfirmation = (
+  ownerName: string,
+  petName: string,
+  location: string,
+  message: string,
+): string => `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reporte de Mascota Perdida</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 20px;">
+
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); overflow: hidden;">
+    
+    <div style="background-color: #f0ad4e; color: #ffffff; padding: 20px; text-align: center;">
+      <h1 style="margin: 0; font-size: 24px;">Reporte de Mascota Perdida Creado</h1>
+    </div>
+
+    <div style="padding: 30px;">
+      <p style="margin-bottom: 20px; font-size: 16px;">Hola ${ownerName},</p>
+      <p style="margin-bottom: 20px;">Este es un email para confirmar que se ha reportado a tu mascota, <strong>${petName}</strong>, como perdida.</p>
+      <p style="margin-bottom: 25px;">Por favor mantente atento, ya que la persona que la encontro puede contactarte o mismamente nosotros. Aquí están los detalles de tu reporte:</p>
+      
+      <div style="background-color: #f9f9f9; border: 1px solid #eeeeee; padding: 20px; border-radius: 5px; margin-bottom: 25px;">
+        <h3 style="margin-top: 0; color: #333; border-bottom: 2px solid #f0ad4e; padding-bottom: 10px;">Detalles del Reporte</h3>
+        <p style="margin: 10px 0;"><strong>Ubicación (última vez visto):</strong> ${location}</p>
+        <p style="margin: 10px 0;"><strong>Mensaje Adicional:</strong> ${message || 'No se proporcionó información adicional.'}</p>
+      </div>
+      
+      <p style="border-top: 1px solid #eeeeee; padding-top: 20px; color: #777; font-size: 14px;">Esperamos sinceramente que te reúnas pronto con ${petName}.</p>
+      
+      <p style="margin-top: 20px;">Con nuestros mejores deseos,<br>El Equipo de INU QR</p>
+    </div>
+
+  </div>
+
+</body>
+</html>
+`;
+
+export const htmlPurchaseConfirmation = (purchaseId: string): string => `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmación de Compra</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 20px;">
+
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); overflow: hidden;">
+    
+    <div style="background-color: #007bff; color: #ffffff; padding: 20px; text-align: center;">
+      <h1 style="margin: 0; font-size: 24px;">¡Gracias por tu Compra!</h1>
+    </div>
+
+    <div style="padding: 30px;">
+      <p style="margin-bottom: 20px; font-size: 16px;">Hola,</p>
+      <p style="margin-bottom: 20px;">Hemos recibido y confirmado tu pedido. ¡Gracias por confiar en INU QR para la seguridad de tu mascota!</p>
+      <p style="margin-bottom: 25px;">Estamos preparando tu pedido para el envío.</p>
+      
+      <div style="background-color: #f9f9f9; border: 1px solid #eeeeee; padding: 20px; border-radius: 5px; margin-bottom: 25px;">
+        <h3 style="margin-top: 0; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">Referencia de tu Pedido</h3>
+        <p style="margin: 10px 0;"><strong>ID de Compra:</strong> ${purchaseId}</p>
+      </div>
+      
+      <p style="border-top: 1px solid #eeeeee; padding-top: 20px; color: #777; font-size: 14px;">Si tienes alguna pregunta sobre tu pedido, no dudes en contactarnos.</p>
+      
+      <p style="margin-top: 20px;">Atentamente,<br>El Equipo de INU QR</p>
+    </div>
+  </div>
+
+</body>
+</html>
+`;
