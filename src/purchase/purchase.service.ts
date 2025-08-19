@@ -36,8 +36,16 @@ export class PurchaseService {
   });
 
   async checkout(createPurchaseDTO: CreatePurchaseDTO, user: User) {
-    const { items, address, city, state, postalCode, phone, fullName } =
-      createPurchaseDTO;
+    const {
+      items,
+      document,
+      address,
+      city,
+      state,
+      postalCode,
+      phone,
+      fullName,
+    } = createPurchaseDTO;
 
     const totalPrice = items.reduce((acc, item) => acc + item.price, 20000);
 
@@ -48,6 +56,7 @@ export class PurchaseService {
         purchase!.id,
         {
           fullName,
+          document,
           phone,
           address,
           city,
@@ -114,6 +123,7 @@ export class PurchaseService {
         shippingInfo: {
           select: {
             full_name: true,
+            document: true,
             phone: true,
             address: true,
             city: true,
@@ -145,6 +155,7 @@ export class PurchaseService {
         shippingInfo: {
           select: {
             full_name: true,
+            document: true,
             phone: true,
             address: true,
             city: true,
@@ -194,6 +205,7 @@ export class PurchaseService {
         shippingInfo: {
           select: {
             full_name: true,
+            document: true,
             phone: true,
             address: true,
             city: true,
@@ -359,12 +371,14 @@ export class PurchaseService {
     connection: Prisma.TransactionClient,
   ) {
     const client = connection || this.prisma;
-    const { fullName, phone, address, city, state, postalCode } = options;
+    const { fullName, document, phone, address, city, state, postalCode } =
+      options;
 
     try {
       await client.shippingInfo.create({
         data: {
           full_name: fullName,
+          document: document,
           phone: phone,
           address: address,
           city: city,

@@ -87,6 +87,7 @@ model PurchaseItem {
 model ShippingInfo {
   id String @id @default(uuid())
   full_name String @db.VarChar(100)
+  document String @db.VarChar(10)
   phone String @db.VarChar(10)
   address String @db.VarChar(256)
   city String @db.VarChar(100)

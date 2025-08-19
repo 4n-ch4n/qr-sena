@@ -130,10 +130,11 @@ export class LostPetReportService {
 
   async foundPet(petId: string) {
     const report = await this.reportByPetId(petId);
-    if (!report.is_active)
-      throw new BadRequestException('Pet not reported as lost');
 
     if (!report) throw new NotFoundException('Report not found');
+
+    if (!report.is_active)
+      throw new BadRequestException('Pet not reported as lost');
 
     if (!report.pet?.owner.email) throw new BadRequestException();
 

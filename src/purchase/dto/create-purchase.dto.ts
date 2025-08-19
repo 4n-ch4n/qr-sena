@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsString,
   Length,
+  MaxLength,
 } from 'class-validator';
 import { PlateDTO } from './plate.dto';
 
@@ -15,6 +16,11 @@ export class CreatePurchaseDTO {
   @IsString()
   @IsNotEmpty()
   fullName: string;
+
+  @IsString()
+  @MaxLength(10)
+  @IsNotEmpty()
+  document: string;
 
   @IsString()
   @IsNotEmpty()
