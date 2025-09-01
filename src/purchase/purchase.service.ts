@@ -13,8 +13,6 @@ import { PrismaService } from 'src/prisma.service';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { CreateShippingInfoOptions } from './interface/shipping.interface';
 import { UpdateShippingDTO } from './dto/update-shipping.dto';
-import { PrinterService } from 'src/printer/printer.service';
-import { orderByIdReport } from 'src/reports/purchase-by-id.report';
 
 @Injectable()
 export class PurchaseService {
@@ -23,7 +21,6 @@ export class PurchaseService {
   constructor(
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly printerService: PrinterService,
   ) {}
 
   private baseUrl = this.configService.get<string>('FRONT_URL');
@@ -307,19 +304,6 @@ export class PurchaseService {
     });
 
     return updatedPurchase;
-  }
-
-  async getPurchaseReportByPurchaseId(purchaseId: string) {
-    const purchase = await this.findOne(purchaseId);
-
-    const docDefinition = orderByIdReport({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      data: purchase as any,
-    });
-
-    const doc = this.printerService.createPdf(docDefinition);
-
-    return doc;
   }
 
   private async createPurchase(

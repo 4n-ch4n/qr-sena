@@ -99,7 +99,6 @@ src/
 ├── lost-pet-report/ # Logic for lost pet reports
 ├── mailer/        # Email sending service
 ├── pets/          # Pet profile management
-├── printer/       # PDF generation services
 ├── purchase/      # Purchase and order logic
 ├── qr/            # QR code generation
 ├── reports/       # PDF report templates and generation

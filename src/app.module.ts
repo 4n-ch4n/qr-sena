@@ -8,7 +8,6 @@ import { AdminModule } from './admin/admin.module';
 import { LostPetReportModule } from './lost-pet-report/lost-pet-report.module';
 import { PurchaseModule } from './purchase/purchase.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
-import { PrinterModule } from './printer/printer.module';
 import { MailerModule } from './mailer/mailer.module';
 
 @Module({
@@ -23,7 +22,6 @@ import { MailerModule } from './mailer/mailer.module';
     LostPetReportModule,
     PurchaseModule,
     WebhooksModule,
-    PrinterModule,
     MailerModule,
   ],
   providers: [QrService],

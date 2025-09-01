@@ -7,7 +7,6 @@ import {
   Patch,
   Post,
   Query,
-  Res,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PurchaseService } from './purchase.service';
@@ -16,7 +15,6 @@ import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { UpdateShippingDTO } from './dto/update-shipping.dto';
-import { Response } from 'express';
 
 @Controller('purchase')
 export class PurchaseController {
@@ -68,20 +66,5 @@ export class PurchaseController {
   @Auth(ValidRoles.admin)
   completeShipping(@Param('id', ParseUUIDPipe) id: string) {
     return this.purchaseService.completeShipping(id);
-  }
-
-  @Get('report/:purchaseId')
-  @Auth()
-  async getPurchaseReport(
-    @Res() response: Response,
-    @Param('purchaseId', ParseUUIDPipe) purchaseId: string,
-  ) {
-    const pdfDoc =
-      await this.purchaseService.getPurchaseReportByPurchaseId(purchaseId);
-
-    response.setHeader('Content-Type', 'application/pdf');
-    pdfDoc.info.Title = 'Factura';
-    pdfDoc.pipe(response);
-    pdfDoc.end();
   }
 }
