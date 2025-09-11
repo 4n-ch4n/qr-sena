@@ -294,14 +294,14 @@ export class PetsService {
 
     try {
       return this.prisma.$transaction(async (tx) => {
-        await tx.pet.delete({
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-          where: { id: pet.pet.id },
-        });
-
         await tx.lostPetReport.deleteMany({
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           where: { pet_id: pet.pet.id },
+        });
+
+        await tx.pet.delete({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+          where: { id: pet.pet.id },
         });
 
         await tx.petCode.delete({
@@ -319,6 +319,8 @@ export class PetsService {
     if (error.code === '23505') throw new BadRequestException(error.detail);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (error.code === '22P02') throw new NotFoundException(error.detail);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (error.code === 'P2003') throw new BadRequestException('Constraint violation');
 
     this.logger.error(error);
     throw new InternalServerErrorException(
